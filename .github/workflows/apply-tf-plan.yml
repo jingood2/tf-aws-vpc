@@ -53,7 +53,7 @@ jobs:
       - name: Decompress TF Plan artifact
         run: unzip tfplan.zip
         #unzip tfplan/${{ inputs.gh_environment }}.zip
-      
+
       #- name: Set Workspace
       #  id: set_workspace
       #  if: ${{ inputs.enable_workspace == 'true'}}
