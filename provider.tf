@@ -5,7 +5,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "~> 4.51.0"
     }
   }
 
@@ -16,13 +16,13 @@ terraform {
   #  workspaces {
   #    prefix = "helloworld-"
   #  }
-  #}
+  #} 
 }
 
 # Provider Block
 provider "aws" {
   region  = var.aws_region
-  profile = "default"
+  profile = "jingood2"
 }
 /*
 Note-1:  AWS Credentials Profile (profile = "default") configured on your local desktop terminal
