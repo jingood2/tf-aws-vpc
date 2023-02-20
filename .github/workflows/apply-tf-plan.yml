@@ -64,6 +64,12 @@ jobs:
         with:
           terraform_version: ${{ inputs.tf_version }}
           cli_config_credentials_token: ${{ secrets.terraform_api_token }}
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole 
 
 
       - name: Terraform Init
