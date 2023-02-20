@@ -10,6 +10,7 @@ module "vpc" {
   public_subnets          = var.vpc_public_subnets
   private_subnets         = var.vpc_private_subnets
   map_public_ip_on_launch = false
+  enable_flow_log         = true
 
   # Database Subnets
   database_subnets                   = var.vpc_database_subnets
