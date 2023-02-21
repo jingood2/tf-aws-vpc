@@ -57,6 +57,7 @@ jobs:
   terraform-plan:
     name: terraform-plan
     needs: terraform-scan
+    environment: ${{ inputs.gh_environment }}
     env:
       TF_VAR_allowed_account_id: ${{ secrets.ALLOWED_ACCOUNT_ID }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
