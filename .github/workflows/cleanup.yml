@@ -1,23 +1,37 @@
+name: Destroy_Terraform
+
 on:
-  label:
-    types: [deleted]
+  workflow_call:
+    inputs:
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: false
+        type: string
+        default: dev
+      enable_destroy:
+        description: '(Optional) Enables TFSEC IaC scans and code quality checks on Terraform configurations'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   destroy_dev:
     runs-on: ubuntu-latest
     name: Destroy terraform workspace
-    strategy:
-      fail-fast: true
-      matrix:
-        path:
-          - dev
-          - stage
-          - prod
+    #strategy:
+    #  fail-fast: true
+    #  matrix:
+    #    path:
+    #      - dev
+    #      - stage
+    #      - prod
     steps:
       - name: Checkout
+        if: ${{ inputs.enable_destroy == 'true' }}
         uses: actions/checkout@v3
 
       - name: terraform destroy
+        if: ${{ inputs.enable_destroy == 'true' }}
         uses: dflook/terraform-destroy@v1
         with:
-          var_file: environments/${{matrix.path}}.auto.tfvars
+          var_file: environments/${{inputs.gh_environment}}.auto.tfvars
