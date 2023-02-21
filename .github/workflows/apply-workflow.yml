@@ -21,13 +21,13 @@ on:
         required: false
         type: string
         default: false
-    #secrets:
-    #  aws_client_id:
-    #    description: 'Specifies the AWS_CLIENT_ID.'
-    #    required: true
-    #  aws_client_secret:
-    #    description: 'Specifies the AWS_CLIENT_SECRET.'
-    #    required: true
+    secrets:
+      AWS_ACCESS_KEY_ID: 
+        description: 'Specifies the AWS_CLIENT_ID.'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'Specifies the AWS_SECRET_ACCESS_KEY.'
+        required: true
 
 jobs:
   apply-plan:
@@ -63,9 +63,9 @@ jobs:
           aws-region: ap-northeast-2
           #aws-access-key-id: ${{ env.AWS_CLIENT_ID }}
           #aws-secret-access-key: ${{ env.AWS_CLIENT_SECRET }}
-          #aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
