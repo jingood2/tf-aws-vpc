@@ -1,0 +1,23 @@
+on:
+  label:
+    types: [deleted]
+
+jobs:
+  destroy_dev:
+    runs-on: ubuntu-latest
+    name: Destroy terraform workspace
+    strategy:
+      fail-fast: true
+      matrix:
+        path:
+          - dev
+          - stage
+          - prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: terraform destroy
+        uses: dflook/terraform-destroy@v1
+        with:
+          var_file: environments/${{matrix.path}}.auto.tfvars
