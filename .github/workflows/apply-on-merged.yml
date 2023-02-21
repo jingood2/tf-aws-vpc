@@ -1,7 +1,6 @@
 on:
   pull_request:
-    types:
-      - closed
+    types: [closed]
 
 jobs:
   apply-dev-plan:
