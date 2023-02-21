@@ -140,7 +140,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.path }}
+        name: ${{ inputs.gh_environment }}
         #path: '${{ matrix.path }}.zip'
         path: 'tfplan.zip'
         retention-days: 5
