@@ -31,6 +31,7 @@ on:
       #aws_client_secret:
       #  description: 'Specifies the AWS_CLIENT_SECRET.'
       #  required: true
+      ###
 
 jobs:
   apply-plan:
