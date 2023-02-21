@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
     secrets:
-      AWS_SECRET_KEY_ID: 
+      AWS_ACCESS_KEY_ID: 
         description: 'Specifies the AWS_CLIENT_ID.'
         required: true
       AWS_SECRET_ACCESS_KEY:
@@ -69,7 +69,7 @@ jobs:
       TF_VAR_allowed_account_id: ${{ secrets.ALLOWED_ACCOUNT_ID }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPAND_SUMMARY_DETAILS: true
-      AWS_SECRET_KEY_ID: ${{ secrets.AWS_SECRET_KEY_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     runs-on: ubuntu-latest
     #strategy:
