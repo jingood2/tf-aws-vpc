@@ -143,7 +143,7 @@ jobs:
   dev:
     name: apply-dev
     needs: terraform-plan
-    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
+    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml
     with:
       path: tfplan
       gh_environment: dev
