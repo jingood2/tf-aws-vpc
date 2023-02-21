@@ -22,9 +22,6 @@ on:
         type: string
         default: false
     secrets:
-      terraform_api_token:
-        description: 'Specifies the TF_API_TOKEN.'
-        required: true
       aws_client_id:
         description: 'Specifies the AWS_CLIENT_ID.'
         required: true
