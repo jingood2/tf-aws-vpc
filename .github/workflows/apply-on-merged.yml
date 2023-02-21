@@ -5,7 +5,7 @@ on:
 
 jobs:
   apply-dev-plan:
-    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
+    uses: ./.github/workflows/apply-tf-plan.yml
     with:
       path: tfplan
       gh_environment: dev
@@ -16,7 +16,7 @@ jobs:
 
   apply-stage-plan:
     needs: apply-dev-plan
-    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
+    uses: ./.github/workflows/apply-tf-plan.yml
     with:
       path: tfplan
       gh_environment: stage
