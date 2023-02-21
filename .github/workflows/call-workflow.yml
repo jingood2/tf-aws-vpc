@@ -3,8 +3,8 @@ name: Terraform CICD Workflow
 
 on:
   pull_request:
-    types:
-      - opened
+    branches:
+      - main
 
 jobs:
   plan_dev:
