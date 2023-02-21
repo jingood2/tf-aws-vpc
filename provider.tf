@@ -25,7 +25,6 @@ provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::783857413761:role/GithubOIDCRole "
   }
-
 }
 /*
 Note-1:  AWS Credentials Profile (profile = "default") configured on your local desktop terminal
