@@ -152,6 +152,7 @@ jobs:
       #terraform_api_token: ${{ secrets.TF_API_TOKEN }}
       aws_client_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_client_secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #terraform_api_token: ${{ secrets.TF_API_TOKEN }}
 
   #stage:
   #  name: apply-stage
