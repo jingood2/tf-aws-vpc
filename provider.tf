@@ -22,7 +22,10 @@ terraform {
 # Provider Block
 provider "aws" {
   region  = var.aws_region
-  profile = "jingood2"
+  #assume_role {
+  #  role_arn = "arn:aws:iam::783857413761:role/GithubOIDCRole "
+  #}
+  profile = "default"
 }
 /*
 Note-1:  AWS Credentials Profile (profile = "default") configured on your local desktop terminal
