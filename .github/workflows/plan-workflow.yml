@@ -13,7 +13,7 @@ on:
         required: false
         type: boolean
         default: false
-
+  
 jobs:
   terraform-scan:
     name: terraform-scan
@@ -70,7 +70,7 @@ jobs:
     #      - stage
     #      - prod
 
-    permissions: write-all
+    #permissions: write-all
 
     steps:
     - name: Check out code
