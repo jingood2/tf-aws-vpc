@@ -59,6 +59,12 @@ jobs:
       #  if: ${{ inputs.enable_workspace == 'true'}}
       #  run: terraform workspace new ${{env.TF_WORKSPACE}}
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:

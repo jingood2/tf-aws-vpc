@@ -152,27 +152,27 @@ jobs:
     secrets:
       terraform_api_token: ${{ secrets.TF_API_TOKEN }}
 
-  stage:
-    name: apply-stage
-    needs: dev
-    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
-    with:
-      path: tfplan
-      gh_environment: stage
-      tf_version: 1.3.0
-    secrets:
-      terraform_api_token: ${{ secrets.TF_API_TOKEN }}
+  #stage:
+  #  name: apply-stage
+  # needs: dev
+  #  uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
+  #  with:
+  #    path: tfplan
+  #    gh_environment: stage
+  #    tf_version: 1.3.0
+  #  secrets:
+  #    terraform_api_token: ${{ secrets.TF_API_TOKEN }}
 
-  prod:
-    name: apply-prod
-    needs: stage
-    uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
-    with:
-      path: tfplan
-      gh_environment: prod
-      tf_version: 1.3.0
-    secrets:
-      terraform_api_token: ${{ secrets.TF_API_TOKEN }}
+  #prod:
+  #  name: apply-prod
+  #  needs: stage
+  #  uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
+  #  with:
+  #    path: tfplan
+  #    gh_environment: prod
+  #    tf_version: 1.3.0
+  #  secrets:
+  #    terraform_api_token: ${{ secrets.TF_API_TOKEN }}
 
     #steps:
     #- name: Download Artifact
