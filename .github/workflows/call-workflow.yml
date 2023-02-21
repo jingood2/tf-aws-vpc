@@ -12,6 +12,9 @@ jobs:
     with:
       gh_environment: dev
       enable_TFSEC: true
+    secrets:
+      AWS_SECRET_KEY_ID: ${{ secrets.AWS_SECRET_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy_dev:
     needs: [plan_dev]
