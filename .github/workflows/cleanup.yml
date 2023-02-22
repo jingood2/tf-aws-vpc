@@ -1,4 +1,4 @@
-name: Destroy_Terraform
+name: Cleanup
 
 on:
   workflow_call:
