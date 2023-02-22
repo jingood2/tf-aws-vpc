@@ -2,6 +2,10 @@
 aws_region  = "ap-northeast-2"
 environment = "prod"
 division    = "jingood2"
+component = "vpc"
+
+# Backend
+backend_s3_bucket="jingood2-tf-states"
 
 ##########
 
