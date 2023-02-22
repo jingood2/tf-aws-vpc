@@ -38,7 +38,7 @@ jobs:
         shell: bash
     env:
       TF_KEY: ${{ inputs.gh_environment }}
-      TF_WORKSPACE: ${{ inputs.gh_environment }}
+      #TF_WORKSPACE: ${{ inputs.gh_environment }}
       #AWS_CLIENT_ID: ${{ secrets.aws_client_id }}
       #AWS_CLIENT_SECRET: ${{ secrets.aws_client_secret }}
 
@@ -51,10 +51,6 @@ jobs:
 
       - name: Decompress TF Plan artifact
         run: unzip tfplan.zip
-
-      - name: Set Workspace
-        id: set_workspace
-        run: terraform workspace new ${{inputs.gh_environment}}
 
       - name: Select Workspace
         id: select_workspace
