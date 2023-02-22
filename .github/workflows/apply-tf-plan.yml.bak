@@ -1,0 +1,79 @@
+### Reusable workflow to download terraform artifact built by `az_tf_plan` and apply the artifact/plan ###
+name: 'Apply_TF_Plan'
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Specifies the path of the root terraform module.'
+        required: true
+        type: string
+      tf_version:
+        description: 'Specifies version of Terraform to use. e.g: 1.1.0 Default=latest.'
+        required: false
+        type: string
+        default: latest
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: true
+        type: string
+      enable_workspace:
+        description: 'Enable Terraform workspace.'
+        required: false
+        type: string
+        default: false
+    secrets:
+      aws_client_id:
+        description: 'Specifies the AWS_CLIENT_ID.'
+        required: true
+      aws_client_secret:
+        description: 'Specifies the AWS_CLIENT_SECRET.'
+        required: true
+
+jobs:
+  apply-plan:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      TF_KEY: ${{ inputs.gh_environment }}
+      TF_WORKSPACE: ${{ inputs.gh_environment }}
+      AWS_CLIENT_ID: ${{ secrets.aws_client_id }}
+      AWS_CLIENT_SECRET: ${{ secrets.aws_client_secret }}
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.TF_KEY }}
+          #path: ${{ inputs.path }}
+
+      - name: Decompress TF Plan artifact
+        run: unzip tfplan.zip
+
+      #- name: Set Workspace
+      #  id: set_workspace
+      #  if: ${{ inputs.enable_workspace == 'true'}}
+      #  run: terraform workspace new ${{env.TF_WORKSPACE}}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ env.AWS_CLIENT_ID }}
+          aws-secret-access-key: ${{ env.AWS_CLIENT_SECRET }}
+          #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.tf_version }}
+          #cli_config_credentials_token: ${{ secrets.terraform_api_token }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply plan.tfplan

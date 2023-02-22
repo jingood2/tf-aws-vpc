@@ -1,9 +1,25 @@
-name: Plan / Test On PR
+name: Build_TF_Plan
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: false
+        type: string
+        default: dev
+      enable_TFSEC:
+        description: '(Optional) Enables TFSEC IaC scans and code quality checks on Terraform configurations'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'Specifies the AWS_CLIENT_ID.'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'Specifies the AWS_SECRET_ACCESS_KEY.'
+        required: true
 
 jobs:
   terraform-scan:
@@ -20,8 +36,7 @@ jobs:
         with:
           terraform_wrapper: true
           terraform_version: 1.3.0
-          #cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
@@ -36,33 +51,36 @@ jobs:
           commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
 
       - name: Scan IaC - tfsec
-        #if: ${{ inputs.ENABLE_TFSEC == 'true' }}
+        if: ${{ inputs.ENABLE_TFSEC == 'true' }}
         uses: aquasecurity/tfsec-sarif-action@v0.1.3
         with:
           sarif_file: tfsec.sarif
 
       - name: Upload SARIF file
-        #if: ${{ inputs.ENABLE_TFSEC == 'true' }}
+        if: ${{ inputs.ENABLE_TFSEC == 'true' }}
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: tfsec.sarif
   terraform-plan:
     name: terraform-plan
     needs: terraform-scan
+    environment: ${{ inputs.gh_environment }}
     env:
       TF_VAR_allowed_account_id: ${{ secrets.ALLOWED_ACCOUNT_ID }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPAND_SUMMARY_DETAILS: true
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        path:
-          - dev
-          - stage
-          - prod
+    #strategy:
+    #  fail-fast: false
+    #  matrix:
+    #    path:
+    #      - dev
+    #      - stage
+    #      - prod
 
-    permissions: write-all
+    #permissions: write-all
 
     steps:
     - name: Check out code
@@ -79,9 +97,9 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-region: ap-northeast-2
-        #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole 
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
     - name: Terraform Init
       id: init
@@ -98,7 +116,7 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform plan --var-file=environments/${{matrix.path}}.auto.tfvars --out=plan.tfplan
+      run: terraform plan --var-file=environments/${{inputs.gh_environment}}.auto.tfvars --out=plan.tfplan
       continue-on-error: true
 
     - name: Post Plan
@@ -122,66 +140,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.path }}
+        name: ${{ inputs.gh_environment }}
         #path: '${{ matrix.path }}.zip'
         path: 'tfplan.zip'
         retention-days: 5
-
-  #download-artifact:
-  #  needs: terraform-plan
-  #  runs-on: ubuntu-latest
-
-  #  steps:
-  #  - name: Download Artifact
-  #    uses: actions/download-artifact@v2
-  #    with:
-  #      name: dev
-        #path: ${{ inputs.path }}
-
-  #  - name: Decompress TF Plan artifact
-  #    run: unzip tfplan.zip
-  dev:
-    name: apply-dev
-    needs: terraform-plan
-    uses: ./.github/workflows/apply-tf-plan.yml
-    with:
-      path: tfplan
-      gh_environment: dev
-      tf_version: 1.3.0
-    secrets:
-      #terraform_api_token: ${{ secrets.TF_API_TOKEN }}
-      aws_client_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_client_secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #terraform_api_token: ${{ secrets.TF_API_TOKEN }}
-
-  #stage:
-  #  name: apply-stage
-  # needs: dev
-  #  uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
-  #  with:
-  #    path: tfplan
-  #    gh_environment: stage
-  #    tf_version: 1.3.0
-  #  secrets:
-  #    terraform_api_token: ${{ secrets.TF_API_TOKEN }}
-
-  #prod:
-  #  name: apply-prod
-  #  needs: stage
-  #  uses: jingood2/tf-template/.github/workflows/apply-tf-plan.yml@main
-  #  with:
-  #    path: tfplan
-  #    gh_environment: prod
-  #    tf_version: 1.3.0
-  #  secrets:
-  #    terraform_api_token: ${{ secrets.TF_API_TOKEN }}
-
-    #steps:
-    #- name: Download Artifact
-    #  uses: actions/download-artifact@v2
-    #  with:
-    #    name: dev
-    #    #path: ${{ inputs.path }}
-
-    #- name: Decompress TF Plan artifact
-    #  run: unzip tfplan.zip

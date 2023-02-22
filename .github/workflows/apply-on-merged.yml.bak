@@ -34,7 +34,7 @@ jobs:
   #  secrets:
   #    aws_client_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
   #    aws_client_secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  
+
   destroy_dev:
     runs-on: ubuntu-latest
     name: Destroy terraform workspace
