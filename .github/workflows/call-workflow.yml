@@ -133,7 +133,7 @@ jobs:
         retention-days: 5
 
   deploy_dev:
-    needs: [plan_dev]
+    needs: [terraform-plan]
     uses: ./.github/workflows/apply-workflow.yml
     with:
       path: tfplan
