@@ -52,9 +52,9 @@ jobs:
       - name: Decompress TF Plan artifact
         run: unzip tfplan.zip
       
-      - name: New Workspace
-        id: new_workspace 
-        run: terraform workspace new ${{inputs.gh_environment}}
+      #- name: New Workspace
+      #  id: new_workspace 
+      #  run: terraform workspace new ${{inputs.gh_environment}}
 
       - name: Select Workspace
         id: select_workspace
