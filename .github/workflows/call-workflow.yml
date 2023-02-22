@@ -65,6 +65,7 @@ jobs:
       matrix:
         path:
           - dev
+          - stage
           - prod
 
     permissions: write-all
@@ -100,6 +101,14 @@ jobs:
         commenter_type: init
         commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
         commenter_exitcode: ${{ steps.init.outputs.exitcode }}
+    
+    - name: New Workspace
+      id: new_workspace 
+      run: terraform workspace new ${{matrix.path}}
+
+    - name: Select Workspace
+      id: select_workspace
+      run: terraform workspace select ${{matrix.path}}
 
     - name: Terraform Plan
       id: plan
@@ -143,16 +152,6 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   
-  destroy_dev:
-    needs: [deploy_dev]
-    name: Cleanup dev
-    if: github.event.pull_request.merged && github.base_ref == 'main'
-    #if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-dev'
-    uses: ./.github/workflows/cleanup.yml
-    with:
-      gh_environment: dev
-      enable_destroy: true
-
   #deploy_prod:
   #  if: github.event.pull_request.merged 
   #  needs: [deploy_dev, plan_prod]

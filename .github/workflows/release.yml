@@ -31,11 +31,3 @@ jobs:
     with:
       gh_environment: dev
       enable_destroy: true
-
-  destroy_prod:
-    name: Cleanup prod
-    if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-prod'
-    uses: ./.github/workflows/cleanup.yml
-    with:
-      gh_environment: prod
-      enable_destroy: true

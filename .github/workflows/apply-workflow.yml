@@ -38,7 +38,7 @@ jobs:
         shell: bash
     env:
       TF_KEY: ${{ inputs.gh_environment }}
-      TF_WORKSPACE: ${{ inputs.gh_environment }}
+      #TF_WORKSPACE: ${{ inputs.gh_environment }}
       #AWS_CLIENT_ID: ${{ secrets.aws_client_id }}
       #AWS_CLIENT_SECRET: ${{ secrets.aws_client_secret }}
 
@@ -51,18 +51,19 @@ jobs:
 
       - name: Decompress TF Plan artifact
         run: unzip tfplan.zip
+      
+      #- name: New Workspace
+      #  id: new_workspace 
+      #  run: terraform workspace new ${{inputs.gh_environment}}
 
-      #- name: Set Workspace
-      #  id: set_workspace
-      #  if: ${{ inputs.enable_workspace == 'true'}}
-      #  run: terraform workspace new ${{env.TF_WORKSPACE}}
+      - name: Select Workspace
+        id: select_workspace
+        run: terraform workspace select ${{inputs.gh_environment}}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-region: ap-northeast-2
-          #aws-access-key-id: ${{ env.AWS_CLIENT_ID }}
-          #aws-secret-access-key: ${{ env.AWS_CLIENT_SECRET }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole

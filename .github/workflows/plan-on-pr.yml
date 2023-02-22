@@ -1,11 +1,9 @@
 name: Plan / Test On PR
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature
-      - chore
-      - fix
+      - main
 
 jobs:
   terraform-scan:
@@ -96,6 +94,10 @@ jobs:
         commenter_type: init
         commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
         commenter_exitcode: ${{ steps.init.outputs.exitcode }}
+    
+    - name: Set Workspace
+      id: set_workspace
+      run: terraform workspace new ${{inputs.gh_environment}}
 
     - name: Terraform Plan
       id: plan
