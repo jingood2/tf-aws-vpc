@@ -11,8 +11,8 @@ terraform {
 
   backend "s3" {
     bucket  = var.backend_s3_bucket
-    key     = "${local.component}/terraform.tfstate"
-    region  = local.aws_region
+    key     = "${var.component}/terraform.tfstate"
+    region  = var.aws_region
     encrypt = true
     profile = "jingood2"
   }
