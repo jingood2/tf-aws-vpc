@@ -1,0 +1,25 @@
+
+name: Terraform CICD Workflow
+
+on:
+  pull_request:
+    #types:
+    #  - opened
+    #  - reopened
+    #  - synchronize
+    #  - closed
+    branches:
+      - main
+
+jobs:
+  destroy_dev:
+    needs: [deploy_dev]
+    name: Cleanup dev
+    if: github.event.pull_request.merged && github.base_ref == 'main'
+    #if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-dev'
+    uses: ./.github/workflows/cleanup.yml
+    with:
+      gh_environment: dev
+      enable_destroy: true
+
+  
