@@ -110,7 +110,6 @@ jobs:
       id: select_workspace
       run: |
         export TF_WORKSPACE=${{matrix.path}}
-        terraform workspace select ${{matrix.path}}
 
     - name: Terraform Plan
       id: plan
