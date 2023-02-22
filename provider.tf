@@ -16,12 +16,12 @@ terraform {
   #  workspaces {
   #    prefix = "helloworld-"
   #  }
-  #} 
+  #}
 }
 
 # Provider Block
 provider "aws" {
-  region  = var.aws_region
+  region = var.aws_region
   #assume_role {
   #  role_arn = "arn:aws:iam::783857413761:role/GithubOIDCRole "
   #}

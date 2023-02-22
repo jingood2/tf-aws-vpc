@@ -14,13 +14,13 @@ on:
         type: boolean
         default: false
     secrets:
-      AWS_ACCESS_KEY_ID: 
+      AWS_ACCESS_KEY_ID:
         description: 'Specifies the AWS_CLIENT_ID.'
         required: true
       AWS_SECRET_ACCESS_KEY:
         description: 'Specifies the AWS_SECRET_ACCESS_KEY.'
         required: true
-  
+
 jobs:
   terraform-scan:
     name: terraform-scan
@@ -36,7 +36,7 @@ jobs:
         with:
           terraform_wrapper: true
           terraform_version: 1.3.0
-      
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
@@ -97,7 +97,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-region: ap-northeast-2
-        #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole 
+        #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
@@ -144,5 +144,3 @@ jobs:
         #path: '${{ matrix.path }}.zip'
         path: 'tfplan.zip'
         retention-days: 5
-
-  
