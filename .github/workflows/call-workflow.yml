@@ -3,15 +3,13 @@ name: Terraform CICD Workflow
 
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
+    #types:
+    #  - opened
+    #  - reopened
+    #  - synchronize
+    #  - closed
     branches:
       - main
-  pull_request_review:
-    types: [submitted]
 
 jobs:
   plan_dev:
@@ -44,7 +42,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy_prod:
-    if: github.event.pull_request.merged == true && github.event.label.name == 'prod'
+    if: github.event.pull_request.merged 
     needs: [deploy_dev, plan_prod]
     uses: ./.github/workflows/apply-workflow.yml
     with:

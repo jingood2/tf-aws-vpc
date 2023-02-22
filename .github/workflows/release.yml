@@ -25,7 +25,8 @@ jobs:
   
   destroy_dev:
     name: Cleanup dev
-    if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-dev'
+    if: github.event.pull_request.merged && github.base_ref == 'main'
+    #if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-dev'
     uses: ./.github/workflows/cleanup.yml
     with:
       gh_environment: dev
