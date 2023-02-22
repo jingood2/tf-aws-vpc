@@ -79,4 +79,6 @@ jobs:
         run: terraform workspace select ${{inputs.gh_environment}}
 
       - name: Terraform Apply
-        run: terraform apply plan.tfplan
+        run: |
+          terraform refresh
+          terraform apply plan.tfplan
