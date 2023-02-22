@@ -3,7 +3,7 @@ name: Release
 on:
   pull_request:
     types:
-      - "closed"
+      - closed
 
 permissions: write-all
 
@@ -22,3 +22,19 @@ jobs:
           config-name: release-drafter-config.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  destroy_dev:
+    name: Cleanup dev
+    if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-dev'
+    uses: ./.github/workflows/cleanup.yml
+    with:
+      gh_environment: dev
+      enable_destroy: true
+
+  destroy_prod:
+    name: Cleanup prod
+    if: github.event.pull_request.merged == true && github.event.label.name == 'cleanup-prod'
+    uses: ./.github/workflows/cleanup.yml
+    with:
+      gh_environment: prod
+      enable_destroy: true
