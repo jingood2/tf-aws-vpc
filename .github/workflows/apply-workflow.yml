@@ -56,10 +56,6 @@ jobs:
       #  id: new_workspace 
       #  run: terraform workspace new ${{inputs.gh_environment}}
 
-      - name: Select Workspace
-        id: select_workspace
-        run: terraform workspace select ${{inputs.gh_environment}}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -75,7 +71,12 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        #run: terraform init
+        run: terraform init -input=false -backend-config="environments/${{env.TF_KEY}}-backend.conf"
+      
+      - name: Select Workspace
+        id: select_workspace
+        run: terraform workspace select ${{inputs.gh_environment}}
 
       - name: Terraform Apply
         run: terraform apply plan.tfplan
