@@ -75,7 +75,8 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        #run: terraform init
+        run: terraform init -input=false -backend-config="environments/${{env.TF_KEY}}-backend.conf"
 
       - name: Terraform Apply
         run: terraform apply plan.tfplan

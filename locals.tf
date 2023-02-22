@@ -20,25 +20,12 @@ variable "division" {
   default = "jingood2"
 }
 
-# Project
-variable "component" {
-  description = "compoment name"
-  type        = string
-  default = "vpc"
-}
-
-variable "backend_s3_bucket" {
-  description = "backend s3 bucket"
-  type        = string
-  default = "jingood2"
-}
 ####################################################################
 
 # Define Local Values in Terraform
 locals {
   owners      = var.division
   environment = var.environment
-  component   = var.component
   name        = "${var.division}-${var.environment}"
   #name = "${local.owners}-${local.environment}"
   common_tags = {
