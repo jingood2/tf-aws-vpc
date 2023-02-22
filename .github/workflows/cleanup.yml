@@ -18,21 +18,20 @@ jobs:
   destroy_dev:
     runs-on: ubuntu-latest
     name: Destroy terraform workspace
-    #strategy:
-    #  fail-fast: true
-    #  matrix:
-    #    path:
-    #      - dev
-    #      - stage
-    #      - prod
+
     steps:
       - name: Checkout
         if: ${{ inputs.enable_destroy == true }}
         uses: actions/checkout@v3
+      
+      - name: Terraform Init
+        id: init
+        run: terraform init
 
-      # delete
-      - name: terraform destroy
-        if: ${{ inputs.enable_destroy == true }}
-        uses: dflook/terraform-destroy@v1
-        with:
-          var_file: environments/${{inputs.gh_environment}}.auto.tfvars
+      - name: Terraform Plan Destroy
+        run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
+
+      - name: Terraform apply Destroy
+        run: terraform apply destroy.tfplan
+
+      # ToDo: Delete tfState in S3
