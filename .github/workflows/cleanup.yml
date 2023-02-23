@@ -18,6 +18,8 @@ jobs:
   destroy_dev:
     runs-on: ubuntu-latest
     name: Destroy terraform workspace
+    env:
+      TF_WORKSPACE: ${{ inputs.gh_environment }}
 
     steps:
       - name: Checkout
@@ -39,13 +41,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
-      - name: Terraform Init
+      - name: Terraform Init - ${{ inputs.gh_environment }}
         id: init
-        #run: terraform init
-        run: terraform init -backend-config="backends/${{inputs.gh_environment}}.conf"
+        #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
+        run: |
+          SAVED_TF_WORKSPACE=$TF_WORKSPACE
+          unset TF_WORKSPACE
+          terraform init -input=false -backend-config="key=${{inputs.gh_environment}}}" -backend-config="backends/${{inputs.gh_environment}}.conf"
+          TF_WORKSPACE=$SAVED_TF_WORKSPACE
+          terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
 
       - name: Terraform Plan Destroy
         run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
+        continue-on-error: true
 
       - name: Terraform apply Destroy
         run: terraform apply destroy.tfplan
