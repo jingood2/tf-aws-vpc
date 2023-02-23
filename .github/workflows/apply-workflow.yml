@@ -69,15 +69,19 @@ jobs:
         with:
           terraform_version: ${{ inputs.tf_version }}
 
-      - name: Terraform Init
+      - name: Terraform Init - ${{ matrix['path'] }}
         id: init
-      #  #run: terraform init -input=false -backend-config="backends/${{env.TF_KEY}}.conf"
-        run: terraform init -input=false -backend-config="key=${{inputs.gh_environment}}"
-      #  run: terraform init -input=false -backend-config="key=${{inputs.gh_environment}}" -backend-config="backends/${{inputs.gh_environment}}.conf"
+        #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
+        run: |
+          SAVED_TF_WORKSPACE=$TF_WORKSPACE
+          unset TF_WORKSPACE
+          terraform init -input=false -backend-config="key=${{matrix['path']}}" -backend-config="backends/${{matrix.path}}.conf"
+          TF_WORKSPACE=$SAVED_TF_WORKSPACE
+          terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
       
-      - name: Select Workspace
-        id: select_workspace
-        run: terraform workspace select ${{inputs.gh_environment}}
+      #- name: Select Workspace
+      #  id: select_workspace
+      #  run: terraform workspace select ${{inputs.gh_environment}}
 
       - name: Terraform Apply
         run: |
