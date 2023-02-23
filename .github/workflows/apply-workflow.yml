@@ -71,7 +71,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -input=false -backend-config="backends/${{env.TF_KEY}}-backend.conf"
+        run: terraform init -input=false -backend-config="backends/${{env.TF_KEY}}.conf"
       
       #- name: Select Workspace
       #  id: select_workspace
