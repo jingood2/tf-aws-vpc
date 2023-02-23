@@ -18,19 +18,42 @@ jobs:
   destroy_dev:
     runs-on: ubuntu-latest
     name: Destroy terraform workspace
+    env:
+      TF_WORKSPACE: ${{ inputs.gh_environment }}
 
     steps:
       - name: Checkout
         if: ${{ inputs.enable_destroy == true }}
         uses: actions/checkout@v3
       
-      - name: Terraform Init
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: true
+          terraform_version: 1.3.0
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ap-northeast-2
+          #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      - name: Terraform Init - ${{ inputs.gh_environment }}
         id: init
-        #run: terraform init
-        run: terraform init -backend-config="environments/${{inputs.gh_environment}}-backend.conf"
+        #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
+        run: |
+          SAVED_TF_WORKSPACE=$TF_WORKSPACE
+          unset TF_WORKSPACE
+          terraform init -input=false -backend-config="key=${{inputs.gh_environment}}}" -backend-config="backends/${{inputs.gh_environment}}.conf"
+          TF_WORKSPACE=$SAVED_TF_WORKSPACE
+          terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
 
       - name: Terraform Plan Destroy
         run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
+        continue-on-error: true
 
       - name: Terraform apply Destroy
         run: terraform apply destroy.tfplan

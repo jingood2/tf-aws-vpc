@@ -38,7 +38,7 @@ jobs:
         shell: bash
     env:
       TF_KEY: ${{ inputs.gh_environment }}
-      #TF_WORKSPACE: ${{ inputs.gh_environment }}
+      TF_WORKSPACE: ${{ inputs.gh_environment }}
       #AWS_CLIENT_ID: ${{ secrets.aws_client_id }}
       #AWS_CLIENT_SECRET: ${{ secrets.aws_client_secret }}
 
@@ -69,9 +69,15 @@ jobs:
         with:
           terraform_version: ${{ inputs.tf_version }}
 
-      - name: Terraform Init
+      - name: Terraform Init - ${{ inputs.gh_environment }}
         id: init
-        run: terraform init -input=false -backend-config="environments/${{env.TF_KEY}}-backend.conf"
+        #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
+        run: |
+          SAVED_TF_WORKSPACE=$TF_WORKSPACE
+          unset TF_WORKSPACE
+          terraform init -input=false -backend-config="key=${{inputs.gh_environment}}}" -backend-config="backends/${{inputs.gh_environment}}.conf"
+          TF_WORKSPACE=$SAVED_TF_WORKSPACE
+          terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
       
       #- name: Select Workspace
       #  id: select_workspace
@@ -79,5 +85,4 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          terraform refresh
           terraform apply plan.tfplan

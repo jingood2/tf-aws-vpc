@@ -55,10 +55,6 @@ jobs:
   terraform-plan:
     name: terraform-plan
     needs: terraform-scan
-    env:
-      TF_VAR_allowed_account_id: ${{ secrets.ALLOWED_ACCOUNT_ID }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      EXPAND_SUMMARY_DETAILS: true
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -67,6 +63,12 @@ jobs:
           - dev
           - stage
           - prod
+    env:
+      TF_VAR_allowed_account_id: ${{ secrets.ALLOWED_ACCOUNT_ID }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EXPAND_SUMMARY_DETAILS: true
+      TF_IN_AUTOMATION: true
+      TF_WORKSPACE: ${{ matrix['path'] }}
 
     permissions: write-all
 
@@ -88,13 +90,19 @@ jobs:
         #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-    - name: Terraform Init
+    
+    - name: Terraform Init - ${{ matrix['path'] }}
       id: init
       #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
-      run: terraform init -input=false -backend-config="environments/${{matrix.path}}-backend.conf"
+      run: |
+        SAVED_TF_WORKSPACE=$TF_WORKSPACE
+        unset TF_WORKSPACE
+        terraform init -input=false -backend-config="key=${{matrix['path']}}" -backend-config="backends/${{matrix.path}}.conf"
+        TF_WORKSPACE=$SAVED_TF_WORKSPACE
+        terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
 
-    - name: Post Init
+
+    - name: Post Init - ${{ matrix['path'] }}
       if: always() && github.ref != 'refs/heads/main' && (steps.init.outcome == 'success' || steps.init.outcome == 'failure')
       uses: robburger/terraform-pr-commenter@v1
       with:
@@ -106,10 +114,10 @@ jobs:
     #  id: new_workspace 
     #  run: terraform workspace new ${{matrix.path}}
 
-    - name: Select Workspace
-      id: select_workspace
-      run: |
-        export TF_WORKSPACE=${{matrix.path}}
+    #- name: Select Workspace
+    #  id: select_workspace
+    #  run: |
+    #    export TF_WORKSPACE=${{matrix.path}}
 
     - name: Terraform Plan
       id: plan
@@ -119,8 +127,7 @@ jobs:
     - name: Post Plan
       uses: robburger/terraform-pr-commenter@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        EXPAND_SUMMARY_DETAILS: 'true' # Override global environment variable; expand details just for this step
+        EXPAND_SUMMARY_DETAILS: true # Override global environment variable; expand details just for this step
       with:
         commenter_type: plan
         commenter_input: ${{ format('{0}{1}', steps.plan.outputs.stdout, steps.plan.outputs.stderr) }}
