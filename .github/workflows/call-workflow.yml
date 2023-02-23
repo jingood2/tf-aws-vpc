@@ -94,7 +94,14 @@ jobs:
     - name: Terraform Init - ${{ matrix['path'] }}
       id: init
       #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
-      run: terraform init -input=false -backend-config="key=${{matrix['path']}}" -backend-config="backends/${{matrix.path}}.conf"
+      run: |
+        printf '%s' "default" > ../.terraform/environment
+        SAVED_TF_WORKSPACE=$TF_WORKSPACE
+        unset TF_WORKSPACE
+        terraform init -input=false -backend-config="key=${{matrix['path']}}" -backend-config="backends/${{matrix.path}}.conf"
+        TF_WORKSPACE=$SAVED_TF_WORKSPACE
+        terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
+
 
     - name: Post Init - ${{ matrix['path'] }}
       if: always() && github.ref != 'refs/heads/main' && (steps.init.outcome == 'success' || steps.init.outcome == 'failure')
