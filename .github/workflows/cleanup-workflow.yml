@@ -1,7 +1,7 @@
-name: Cleanup
+name: Cleanup Manually
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       gh_environment:
         description: 'Specifies the GitHub deployment environment.'
@@ -13,13 +13,16 @@ on:
         required: false
         type: boolean
         default: false
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        description: 'Specifies the AWS_CLIENT_ID.'
+      bucket_name:
+        description: 'cleanup bucketname'
         required: true
-      AWS_SECRET_ACCESS_KEY:
-        description: 'Specifies the AWS_SECRET_ACCESS_KEY.'
+        type: string
+      app_name:
+        description: 'cleanup target component name'
         required: true
+        type: string
+
+permissions: write-all
 
 jobs:
   destroy_dev:
@@ -30,7 +33,6 @@ jobs:
     
     steps:
       - name: Checkout
-        if: ${{ inputs.enable_destroy == true }}
         uses: actions/checkout@v3
       
       - name: Setup Terraform
@@ -61,8 +63,23 @@ jobs:
       - name: Terraform Plan Destroy
         run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
         continue-on-error: true
+      
+      - name: Post Plan
+        uses: robburger/terraform-pr-commenter@v1
+        env:
+          EXPAND_SUMMARY_DETAILS: true # Override global environment variable; expand details just for this step
+        with:
+          commenter_type: plan
+          commenter_input: ${{ format('{0}{1}', steps.plan.outputs.stdout, steps.plan.outputs.stderr) }}
+          commenter_exitcode: ${{ steps.plan.outputs.exitcode }}
 
       - name: Terraform apply Destroy
+        if: inputs.enable_destroy == true
         run: terraform apply destroy.tfplan
 
-      # ToDo: Delete tfState in S3
+      - name: Delete plan file
+        if: steps.destroy.outcome == 'success'
+        run: aws s3 rm s3://${{inputs.bucket_name}}/env:/${{inputs.gh_environment}}/${{inputs.app_name}}/terraform.tfstate
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
