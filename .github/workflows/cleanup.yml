@@ -20,6 +20,10 @@ jobs:
     name: Destroy terraform workspace
     env:
       TF_WORKSPACE: ${{ inputs.gh_environment }}
+    
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout
