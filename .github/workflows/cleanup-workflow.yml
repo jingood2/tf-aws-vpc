@@ -60,20 +60,12 @@ jobs:
           TF_WORKSPACE=$SAVED_TF_WORKSPACE
           terraform workspace select "${TF_WORKSPACE}" || terraform workspace new "${TF_WORKSPACE}"
 
-      - name: Terraform Plan Destroy
+      - name: Terraform Plan Destroy - ${{ inputs.gh_environment }}
         run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
         continue-on-error: true
       
-      - name: Post Plan
-        uses: robburger/terraform-pr-commenter@v1
-        env:
-          EXPAND_SUMMARY_DETAILS: true # Override global environment variable; expand details just for this step
-        with:
-          commenter_type: plan
-          commenter_input: ${{ format('{0}{1}', steps.plan.outputs.stdout, steps.plan.outputs.stderr) }}
-          commenter_exitcode: ${{ steps.plan.outputs.exitcode }}
-
-      - name: Terraform apply Destroy
+      - name: Terraform apply Destroy - ${{ inputs.gh_environment }}
+        id: destroy
         if: inputs.enable_destroy == true
         run: terraform apply destroy.tfplan
 
