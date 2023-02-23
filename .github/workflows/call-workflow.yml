@@ -91,8 +91,8 @@ jobs:
     
     - name: Terraform Init
       id: init
-      run: terraform init -input=false -backend-config="key=${{matrix.path}}"
-      #run: terraform init -input=false -backend-config="backends/${{matrix.path}}.conf"
+      #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
+      run: terraform init -input=false -backend-config="backends/${{matrix.path}}.conf"
 
     - name: Post Init
       if: always() && github.ref != 'refs/heads/main' && (steps.init.outcome == 'success' || steps.init.outcome == 'failure')
