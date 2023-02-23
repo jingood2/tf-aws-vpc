@@ -81,4 +81,4 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          terraform apply plan.tfplan
+          terraform apply
