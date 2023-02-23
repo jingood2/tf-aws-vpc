@@ -11,16 +11,14 @@ on:
     branches:
       - main
 
+permissions: write-all
+
 jobs:
   terraform-scan:
     name: terraform-scan
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    permissions:
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Check out code
@@ -31,7 +29,6 @@ jobs:
         with:
           terraform_wrapper: true
           terraform_version: 1.3.0
-          #cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
         id: fmt
@@ -50,7 +47,8 @@ jobs:
         uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
         with:
           working_directory: .
-          tfsec_formats: sarif,checkstyle
+          soft_fail_commenter: false
+          tfsec_formats: default,sarif,checkstyle
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       #- name: Scan IaC - tfsec
@@ -59,11 +57,11 @@ jobs:
       #  with:
       #    sarif_file: tfsec.sarif
 
-      #- name: Upload SARIF file
-      #  #if: ${{ inputs.ENABLE_TFSEC == 'true' }}
-      #  uses: github/codeql-action/upload-sarif@v2
-      #  with:
-      #    sarif_file: tfsec.sarif
+      - name: Upload SARIF file
+        #if: ${{ inputs.ENABLE_TFSEC == 'true' }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif.json
   terraform-plan:
     name: terraform-plan
     needs: terraform-scan
