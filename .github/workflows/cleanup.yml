@@ -13,6 +13,13 @@ on:
         required: false
         type: boolean
         default: false
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'Specifies the AWS_CLIENT_ID.'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'Specifies the AWS_SECRET_ACCESS_KEY.'
+        required: true
 
 jobs:
   destroy_dev:
@@ -21,10 +28,6 @@ jobs:
     env:
       TF_WORKSPACE: ${{ inputs.gh_environment }}
     
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
       - name: Checkout
         if: ${{ inputs.enable_destroy == true }}
