@@ -1,4 +1,6 @@
-# Create VPC Terraform VPC Module
+################################################################################
+# VPC Module 
+################################################################################
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.19"
@@ -40,4 +42,108 @@ module "vpc" {
   database_subnet_tags = {
     Type = "Private Database Subnets"
   }
+}
+
+################################################################################
+# VPC Endpoint Module
+################################################################################
+module "vpc_endpoints" {
+  source = "./modules/vpc-endpoints"
+  create = false
+
+  vpc_id = module.vpc.vpc_id
+  security_group_ids = [data.aws_security_group.default.id]
+  
+  tags     = local.common_tags
+
+  timeouts = {
+  }
+
+  endpoints = {
+    # Gateway Endpoint Example
+    s3 = {
+      service = "s3"
+      service_type = "Gateway"
+      route_table_ids = flatten([module.vpc.private_route_table_ids])
+      policy = data.aws_iam_policy_document.generic_endpoint_policy.json
+      tags    = { Name = "${local.name}-s3-gw-endpoint" }
+    },
+
+    # Interface Endpoint Example
+    ecr_dkr = {
+      service             = "ecr.dkr"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
+      tags    = { Name = "${local.name}-ecr-ekr-if-endpoint" }
+    },
+  }
+}
+
+################################################################################
+# Supporting Resources
+################################################################################
+
+data "aws_security_group" "default" {
+  name   = "default"
+  vpc_id = module.vpc.vpc_id
+}
+
+/* data "aws_iam_policy_document" "dynamodb_endpoint_policy" {
+  statement {
+    effect    = "Deny"
+    actions   = ["dynamodb:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:sourceVpce"
+
+      values = [module.vpc.vpc_id]
+    }
+  }
+} */
+
+
+# vpc가 아니면 모든 principals의 모든 permission을 deny
+data "aws_iam_policy_document" "generic_endpoint_policy" {
+  statement {
+    effect    = "Deny"
+    actions   = ["*"]
+    resources = ["*"]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:SourceVpc"
+
+      values = [module.vpc.vpc_id]
+    }
+  }
+}
+
+resource "aws_security_group" "vpc_tls" {
+  name_prefix = "${local.name}-vpc_tls"
+  description = "Allow TLS inbound traffic"
+  vpc_id = module.vpc.vpc_id
+
+  ingress = [ {
+    cidr_blocks = [ module.vpc.vpc_cidr_block ]
+    from_port = 443
+    protocol = "tcp"
+    #security_groups = [ "value" ]
+    to_port = 443
+  } ]
+
+  tags = local.common_tags
+  
 }
