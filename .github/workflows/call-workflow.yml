@@ -11,14 +11,16 @@ on:
     branches:
       - main
 
-permissions: write-all
-
 jobs:
   terraform-scan:
     name: terraform-scan
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Check out code
