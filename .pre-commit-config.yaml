@@ -12,8 +12,13 @@ repos:
     - id: terraform_fmt
     - id: terraform_validate
     - id: terraform_checkov
+      args:
+        - --args=--check HIGH
+        - --args=--check CKV_AWS_123
     - id: terraform_tflint
     - id: terraform_tfsec
+      args:
+        - --args=--minimum-severity HIGH
 
 - repo: local
   hooks:
@@ -23,9 +28,9 @@ repos:
       language: system
       pass_filenames: false
       always_run: true
-    #- id: terraform-docs-examples
-    #  name: terraform-docs-examples
-    #  entry: "terraform-docs terraform"
-    #  language: system
-    #  pass_filenames: false
-    #  always_run: true
+    - id: terraform-docs-examples
+      name: terraform-docs-examples
+      entry: terraform-docs modules/vpc-endpoints
+      language: system
+      pass_filenames: false
+      always_run: true
