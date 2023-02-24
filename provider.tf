@@ -10,13 +10,7 @@ terraform {
   }
 
   backend "s3" {}
-  #backend "s3" {
-  #  bucket  = var.backend_s3_bucket
-  #  key     = "${var.component}/terraform.tfstate"
-  #  region  = var.aws_region
-  #  encrypt = true
-  #  profile = "jingood2"
-  #}
+ 
   #backend "remote" {
   #  hostname = "app.terraform.io"
   #  organization = "jingood2"
