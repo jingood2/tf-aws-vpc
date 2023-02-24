@@ -7,12 +7,10 @@ on:
         description: 'Specifies the GitHub deployment environment.'
         required: false
         type: string
-        default: dev
       enable_destroy:
         description: '(Optional) Enables Terraform Destroy'
         required: false
         type: boolean
-        default: false
       bucket_name:
         description: 'cleanup bucketname'
         required: true
@@ -30,11 +28,11 @@ jobs:
     name: Destroy terraform workspace
     env:
       TF_WORKSPACE: ${{ inputs.gh_environment }}
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -49,7 +47,7 @@ jobs:
           #role-to-assume: arn:aws:iam::783857413761:role/GithubOIDCRole
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      
+
       - name: Terraform Init - ${{ inputs.gh_environment }}
         id: init
         #run: terraform init -input=false -backend-config="key=${{matrix.path}}"
@@ -63,7 +61,7 @@ jobs:
       - name: Terraform Plan Destroy - ${{ inputs.gh_environment }}
         run: terraform plan -destroy -var-file=environments/${{inputs.gh_environment}}.auto.tfvars -out=destroy.tfplan
         continue-on-error: true
-      
+
       - name: Terraform apply Destroy - ${{ inputs.gh_environment }}
         id: destroy
         if: inputs.enable_destroy == true

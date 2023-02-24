@@ -5,12 +5,12 @@ on:
     types:
       - closed
 
-permissions: write-all
-
 jobs:
   update_release_draft:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions: write-all
+
     if: github.event.pull_request.merged && github.base_ref == 'main'
     steps:
       - name: Create Release
@@ -22,4 +22,3 @@ jobs:
           config-name: release-drafter-config.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  

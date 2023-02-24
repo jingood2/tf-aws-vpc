@@ -1,5 +1,5 @@
 ################################################################################
-# VPC Module 
+# VPC Module
 ################################################################################
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -49,12 +49,12 @@ module "vpc" {
 ################################################################################
 module "vpc_endpoints" {
   source = "./modules/vpc-endpoints"
-  create = false
+  create = true
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id             = module.vpc.vpc_id
   security_group_ids = [data.aws_security_group.default.id]
-  
-  tags     = local.common_tags
+
+  tags = local.common_tags
 
   timeouts = {
   }
@@ -62,11 +62,11 @@ module "vpc_endpoints" {
   endpoints = {
     # Gateway Endpoint Example
     s3 = {
-      service = "s3"
-      service_type = "Gateway"
+      service         = "s3"
+      service_type    = "Gateway"
       route_table_ids = flatten([module.vpc.private_route_table_ids])
-      policy = data.aws_iam_policy_document.generic_endpoint_policy.json
-      tags    = { Name = "${local.name}-s3-gw-endpoint" }
+      policy          = data.aws_iam_policy_document.generic_endpoint_policy.json
+      tags            = { Name = "${local.name}-s3-gw-endpoint" }
     },
 
     # Interface Endpoint Example
@@ -75,7 +75,7 @@ module "vpc_endpoints" {
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
       policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
-      tags    = { Name = "${local.name}-ecr-ekr-if-endpoint" }
+      tags                = { Name = "${local.name}-ecr-ekr-if-endpoint" }
     },
   }
 }
@@ -134,16 +134,16 @@ data "aws_iam_policy_document" "generic_endpoint_policy" {
 resource "aws_security_group" "vpc_tls" {
   name_prefix = "${local.name}-vpc_tls"
   description = "Allow TLS inbound traffic"
-  vpc_id = module.vpc.vpc_id
+  vpc_id      = module.vpc.vpc_id
 
-  ingress = [ {
-    cidr_blocks = [ module.vpc.vpc_cidr_block ]
-    from_port = 443
-    protocol = "tcp"
+  ingress = [{
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+    from_port   = 443
+    protocol    = "tcp"
     #security_groups = [ "value" ]
     to_port = 443
-  } ]
+  }]
 
   tags = local.common_tags
-  
+
 }

@@ -24,18 +24,18 @@ variable "subnet_ids" {
 
 variable "endpoints" {
   description = "A map of interface and/or gateway endpoints containing their properties and configurations"
-  type = "any"
-  default = {}
+  type        = any
+  default     = {}
 }
 
 variable "timeouts" {
   description = "Define maximum timeout for creating, updating, and deleting VPC endpoint resources"
-  type = "map(string)"
-  default = {}
+  type        = map(string)
+  default     = {}
 }
 
 variable "tags" {
   description = "map of tags to use on all resources"
-  type = "map(string)"
-  default = {}
+  type        = map(string)
+  default     = {}
 }
